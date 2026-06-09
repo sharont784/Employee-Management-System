@@ -1,5 +1,5 @@
 import { Loader2Icon, LogInIcon, LogOutIcon } from "lucide-react";
-import React, { useState } from "react";
+import  { useState } from "react";
 
 const CheckInButton = ({ todayRecord, onAction }) => {
   const [loading, setLoading] = useState(false);
