@@ -1,7 +1,6 @@
 import { format } from "date-fns";
 import { Download } from "lucide-react";
 
-
 const PayslipList = ({ payslips, isAdmin }) => {
   return (
     <div className="card overflow-hidden">
@@ -69,10 +68,17 @@ const PayslipList = ({ payslips, isAdmin }) => {
                     ${payslip.netSalary?.toLocaleString()}
                   </td>
 
-                  <td className="px-6 py-5 max-w-xs truncate text-gray-600 text-center">
-                    <button onClick={()=>window.open(`/print/payslips/${payslip._id || payslip.id}`)}
-                    className="">
-                      <Download className=""/>Download
+                  <td className="px-6 py-5 text-center">
+                    <button
+                      onClick={() =>
+                        window.open(
+                          `/print/payslips/${payslip._id || payslip.id}`,
+                        )
+                      }
+                      className="inline-flex items-center gap-2 px-4 py-2 bg-blue-50 text-blue-600 rounded-md hover:bg-blue-100 transition-colors text-sm font-medium"
+                    >
+                      <Download size={16} />
+                      Download
                     </button>
                   </td>
                 </tr>
