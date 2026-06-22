@@ -63,7 +63,7 @@ export const createLeave = async (req, res) => {
 
 //get leaves
 //GET /api/leaves
-export const getLeave = async (req, res) => {
+export const getLeaves = async (req, res) => {
   try {
     const session = req.session;
     const isAdmin = session.role === "ADMIN";
@@ -132,7 +132,7 @@ export const updateLeaveStatus = async (req, res) => {
     }
     const leave = await LeaveApplication.findByIdAndUpdate(
       req.params.id, { status }, { returnDocument: "after" })
-      
+
     return res.json({
       success: true,
       data: leave

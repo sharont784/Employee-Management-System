@@ -1,4 +1,5 @@
 import mongoose from "mongoose";
+import Employee from "./Employee.js";
 
 const leaveApplicationSchema = new mongoose.Schema({
    employeeId: {
