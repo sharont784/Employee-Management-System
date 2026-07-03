@@ -7,12 +7,15 @@ import {
   DollarSignIcon,
   FileTextIcon,
   LayoutGridIcon,
+  Loader2,
   LogOutIcon,
   MenuIcon,
   SettingsIcon,
   UserIcon,
   XIcon,
 } from "lucide-react";
+import { useAuth } from "../context/authContext";
+import api from "../api/axios";
 
 const Sidebar = () => {
   const { pathname } = useLocation();
@@ -20,10 +23,13 @@ const Sidebar = () => {
   const [userName, setUserName] = useState("");
   const [mobileOpen, setMobileOpen] = useState(false);
 
+  const { user, loading, logout } = useAuth();
+
   useEffect(() => {
-    setUserName(
-      dummyProfileData.firstName + " " + dummyProfileData.lastName
-    );
+    api.get("/profile").then(({ data }) => {
+      if (data.firstName)
+        setUserName(`${data.firstName}${data.lasttName || ""}`.trim());
+    });
   }, []);
 
   // Close mobile sidebar on route change
@@ -31,8 +37,7 @@ const Sidebar = () => {
     setMobileOpen(false);
   }, [pathname]);
 
- const role = "" || "EMPLOYEE";
-   // or this const role = "ADMIN" || "EMPLOYEE";
+  const role = user?.role;
 
   const navItems = [
     { name: "Dashboard", href: "/dashboard", icon: LayoutGridIcon },
@@ -47,28 +52,24 @@ const Sidebar = () => {
 
     { name: "Settings", href: "/settings", icon: SettingsIcon },
   ];
-  
+
   const handleLogout = () => {
+    logout()
     window.location.href = "/login";
   };
 
- const sidebarcontent = (
+  const sidebarcontent = (
     <>
       {/* brand header */}
       <div className="border-b border-white/10 p-6 ">
         <div className="flex items-center justify-between">
-
           <div className="flex items-center gap-3">
             <UserIcon className="w-7 h-7 text-white" />
 
             <div>
-              <p className="text-white font-semibold text-lg">
-                Employee MS
-              </p>
+              <p className="text-white font-semibold text-lg">Employee MS</p>
 
-              <p className="text-slate-400 text-sm">
-                Management System
-              </p>
+              <p className="text-slate-400 text-sm">Management System</p>
             </div>
           </div>
 
@@ -78,18 +79,14 @@ const Sidebar = () => {
           >
             <XIcon size={20} />
           </button>
-
         </div>
       </div>
 
       {/* user profile card */}
       {userName && (
         <div className="p-4">
-
           <div className="bg-white/5 border border-white/5 rounded-2xl p-4">
-
             <div className="flex items-center gap-4">
-
               <div className="w-12 h-12 rounded-xl bg-indigo-500/10 border border-white/10 flex items-center justify-center">
                 <span className="text-white font-semibold">
                   {userName.charAt(0).toUpperCase()}
@@ -97,19 +94,14 @@ const Sidebar = () => {
               </div>
 
               <div>
-                <p className="text-white font-medium">
-                  {userName}
-                </p>
+                <p className="text-white font-medium">{userName}</p>
 
                 <p className="text-slate-400 text-sm">
                   {role === "ADMIN" ? "Administrator" : "Employee"}
                 </p>
               </div>
-
             </div>
-
           </div>
-
         </div>
       )}
 
@@ -122,65 +114,61 @@ const Sidebar = () => {
 
       {/* navigation list */}
       <div className="px-3 space-y-2">
+        {loading ? (
+          <div>
+            <Loader2 className="animate-spin w-4 h-4"/>
+            <span className="text-sm">Loading...</span>
+          </div>
+        ) : (
+          navItems.map((item) => {
+            const isActive = pathname.startsWith(item.href);
 
-        {navItems.map((item) => {
-
-          const isActive = pathname.startsWith(item.href);
-
-          return (
-            <Link
-              key={item.name}
-              to={item.href}
-              className={`group flex items-center gap-3 px-4 py-3 rounded-xl transition-all duration-300 relative
+            return (
+              <Link
+                key={item.name}
+                to={item.href}
+                className={`group flex items-center gap-3 px-4 py-3 rounded-xl transition-all duration-300 relative
               
               ${
                 isActive
                   ? "bg-indigo-500/20 text-indigo-200"
                   : "text-slate-300 hover:bg-white/5 hover:text-white"
               }`}
-            >
+              >
+                {isActive && (
+                  <div className="absolute left-0 top-2 bottom-2 w-1 rounded-r-full bg-indigo-400" />
+                )}
 
-              {isActive && (
-                <div className="absolute left-0 top-2 bottom-2 w-1 rounded-r-full bg-indigo-400" />
-              )}
-
-              <item.icon
-                className={`w-5 h-5 transition-colors
+                <item.icon
+                  className={`w-5 h-5 transition-colors
                 ${
                   isActive
                     ? "text-indigo-300"
                     : "text-slate-400 group-hover:text-white"
                 }`}
-              />
+                />
 
-              <span className="font-medium flex-1">
-                {item.name}
-              </span>
+                <span className="font-medium flex-1">{item.name}</span>
 
-              {isActive && (
-                <ChevronRightIcon className="w-4 h-4 text-indigo-300" />
-              )}
-
-            </Link>
-          );
-        })}
-
+                {isActive && (
+                  <ChevronRightIcon className="w-4 h-4 text-indigo-300" />
+                )}
+              </Link>
+            );
+          })
+        )}
       </div>
 
       {/* logout */}
       <div className="mt-auto border-t border-white/10 p-4">
-
         <button
           onClick={handleLogout}
           className="w-full flex items-center gap-3 px-4 py-3 rounded-xl text-slate-300 hover:bg-white/5 hover:text-white transition-all duration-300"
         >
           <LogOutIcon className="w-5 h-5" />
 
-          <span className="font-medium">
-            Log Out
-          </span>
+          <span className="font-medium">Log Out</span>
         </button>
-
       </div>
     </>
   );

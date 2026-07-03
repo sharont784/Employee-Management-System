@@ -1,5 +1,7 @@
 import { CalendarDaysIcon, FileTextIcon, Loader2, Send, X } from "lucide-react";
 import { useState } from "react";
+import toast from "react-hot-toast";
+import api from "../../api/axios";
 
 const ApplyLeaveModal = ({ open, onClose, onSuccess }) => {
   const [loading, setLoading] = useState(false);
@@ -13,18 +15,17 @@ const ApplyLeaveModal = ({ open, onClose, onSuccess }) => {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-
     setLoading(true);
+    const formData = new FormData(e.currentTarget)
+    const data = Object.fromEntries(formData.entries())
 
-    setTimeout(() => {
-      setLoading(false);
-
-      if (onSuccess) {
-        onSuccess();
-      }
-
-      onClose();
-    }, 1000);
+    try {
+      await api.post('/leave', data)
+      onSuccess()
+      onclose()
+    } catch (err) {
+      toast.error(err.response?.data?.error || err?.message)
+    }
   };
 
   if (!open) return null;

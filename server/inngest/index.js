@@ -107,7 +107,7 @@ const leaveApplicationReminder = inngest.createFunction(
       leaveApplicationId
     );
 
-    if (!leaveApplication?.status === "PENDING") {
+    if (leaveApplication?.status === "PENDING") {
       // Get employee data
       const employee = await Employee.findById(
         leaveApplication.employeeId
@@ -161,7 +161,7 @@ const attendanceReminderCron = inngest.createFunction(
       const startUTC = new Date(
         new Date().toLocaleDateString("en-CA", {
           timeZone: "Asia/Kolkata",
-        }) + "T00:00:00-+05:30"
+        }) + "T00:00:00+05:30"
       );
 
       const endUTC = new Date(
@@ -197,7 +197,7 @@ const attendanceReminderCron = inngest.createFunction(
     const onLeaveIds = await step.run(
       "get-on-leave-ids",
       async () => {
-        const leaves = await leaveApplication.find({
+        const leaves = await LeaveApplication.find({
           status: "APPROVED",
           startDate: {
             $lte: new Date(today.endUTC),
@@ -241,7 +241,7 @@ const attendanceReminderCron = inngest.createFunction(
           const emailPromises = absentEmployees.map((emp) => {
             // Send email
             sendEmail({
-              to: employee.email,
+              to: emp.email,
               subject: "Attendance reminder",
               body: `
                 <div style="max-width: 600px; font-family: Arial, sans-serif;">
@@ -282,9 +282,11 @@ const attendanceReminderCron = inngest.createFunction(
       );
     }
 
+    await Promise.all(emailPromises)
+
     return {
       totalActive: activeEmployees.length,
-      onleave: onLeaveIds.length,
+      onLeave: onLeaveIds.length,
       checkedIn: checkedInIds.length,
       absent: absentEmployees.length,
     };

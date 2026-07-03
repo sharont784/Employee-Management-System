@@ -1,45 +1,13 @@
 import React, { useState } from "react";
 import { Loader2, Plus, X } from "lucide-react";
+import toast from "react-hot-toast";
+import axios from "axios";
 
 const GeneratePayslipForm = ({ employees = [], onSuccess }) => {
   const [isOpen, setIsOpen] = useState(false);
   const [loading, setLoading] = useState(false);
 
-  const handleSubmit = async (e) => {
-    e.preventDefault();
-
-    const formData = new FormData(e.target);
-
-    const data = {
-      employeeId: formData.get("employeeId"),
-      month: formData.get("month"),
-      year: formData.get("year"),
-      basicSalary: Number(formData.get("basicSalary")),
-      allowance: Number(formData.get("allowance")),
-      deductions: Number(formData.get("deductions")),
-    };
-
-    try {
-      setLoading(true);
-
-      console.log("Payslip Data:", data);
-
-      // API CALL HERE
-      // await axios.post("/api/payslips", data);
-
-      if (onSuccess) {
-        onSuccess();
-      }
-
-      setIsOpen(false);
-    } catch (error) {
-      console.error(error);
-    } finally {
-      setLoading(false);
-    }
-  };
-
-  if (!isOpen) {
+    if (!isOpen) {
     return (
       <button
         onClick={() => setIsOpen(true)}
@@ -50,6 +18,28 @@ const GeneratePayslipForm = ({ employees = [], onSuccess }) => {
       </button>
     );
   }
+
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+    setLoading(true)
+
+    const formData = new FormData(e.currentTarget);
+
+    const data = Object.fromEntries(formData.entries())
+
+    try {
+      // API CALL HERE
+      await axios.post("/payslips", data);
+      setIsOpen(false)
+      onSuccess()
+    } catch (error) {
+      toast.error(error?.response?.data?.error || error?.message);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+
 
   return (
     <div className="fixed inset-0 bg-black/40 flex items-center justify-center z-50">

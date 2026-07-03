@@ -33,6 +33,7 @@ app.use("/api/leave",leaveRouter)
 app.use("/api/payslip",payslipRouter)
 app.use("/api/dashboard",dashboardRouter)
 
+console.log("INNGEST_SIGNING_KEY:", process.env.INNGEST_SIGNING_KEY ? "FOUND" : "NOT FOUND");
 app.use("/api/inngest", serve({ client: inngest, functions }));
 
 

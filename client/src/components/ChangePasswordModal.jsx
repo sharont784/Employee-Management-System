@@ -1,5 +1,6 @@
 import { Loader2, Lock, X } from "lucide-react";
 import React, { useState } from "react";
+import api from "../api/axios";
 
 const ChangePasswordModal = ({ open, onClose }) => {
   const [loading, setLoading] = useState(false);
@@ -10,6 +11,25 @@ const ChangePasswordModal = ({ open, onClose }) => {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
+    setLoading(true);
+    setMessage({ type: "", text: "" });
+    const formData = new FormData(e.currentTarget);
+    const currentPassword = FormData.get("currentPassword");
+    const newPassword = FormData("newPassword");
+
+    try {
+      const { data } = await api.post("/auth/change-password", {
+        currentPassword,
+        newPassword,
+      });
+      if (!data.success) throw new Error(data.error || "failed");
+      setMessage({type:"success", text: "Password updated successfully"})
+      e.target.reset();
+    } catch (error) {
+      setMessage({ type: "error", text: error.message });
+    } finally {
+      setLoading(false)
+    }
   };
 
   if (!open) return null;
@@ -46,9 +66,7 @@ const ChangePasswordModal = ({ open, onClose }) => {
           {message.text && (
             <div
               className={`mb-4 rounded-lg p-3 text-sm text-white ${
-                message.type === "success"
-                  ? "bg-emerald-500"
-                  : "bg-rose-500"
+                message.type === "success" ? "bg-emerald-500" : "bg-rose-500"
               }`}
             >
               {message.text}
@@ -95,9 +113,7 @@ const ChangePasswordModal = ({ open, onClose }) => {
               disabled={loading}
               className="flex flex-1 items-center justify-center gap-2 rounded-lg bg-indigo-600 py-3 text-sm font-medium text-white hover:bg-indigo-700 disabled:opacity-50"
             >
-              {loading && (
-                <Loader2 className="h-4 w-4 animate-spin" />
-              )}
+              {loading && <Loader2 className="h-4 w-4 animate-spin" />}
               Update Password
             </button>
           </div>
